@@ -1,0 +1,45 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}Все новости{% endblock title %}
+
+{% block content %}
+<figure class="text-center">
+<h1>Все новости</h1>
+{% if postlist.count == 1 or postlist.count == 21 or postlist.count == 31 %}
+<h3><small class="text-muted">На портале {{ postlist.count }} новость</small></h3>
+{% elif postlist.count == 2 or postlist.count == 3 or postlist.count == 4 or postlist.count == 22 or postlist.count == 23 or postlist.count == 24 %}
+<h3>На портале {{ postlist.count }} новости</h3>
+{% else %}
+<h3>На портале {{ postlist.count }} новостей</h3>
+{% endif %}
+</figure>
+
+<div class="row">
+  <div class="col-lg-4">
+    {% for post in postlist %}
+    {% if post.type_post == 'NW' %}
+    <div class="card text-white bg-success mb-3" style="max-width: 20rem;">
+      <div class="card-header">{{ post.title_post|censor }}</div>
+      <div class="card-body">
+        <h4 class="card-title">{{ post.time_create }}</h4>
+        <p class="card-text">{{ post.text_post|censor|truncatechars:20 }}</p>
+        <button type="button" class="btn btn-success">Прочитать полностью</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    {% else %}
+    <div class="card border-success mb-3" style="max-width: 20rem;">
+      <div class="card-header">{{ post.title_post|censor }}</div>
+      <div class="card-body">
+        <h4 class="card-title">{{ post.time_create }}</h4>
+        <p class="card-text">{{ post.text_post|censor|truncatechars:20 }}</p>
+        <button type="button" class="btn btn-outline-success">Прочитать полностью</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock content %}

@@ -17,9 +17,15 @@ class Author(models.Model):
             self.user_rating += comment.comment_rating
         self.save()
 
+    def __str__(self):
+        return f'{self.user.username}'
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name.title()
 
 
 class Post(models.Model):
@@ -41,6 +47,9 @@ class Post(models.Model):
 
     def preview(self):
         return f'{self.text_post[:124]}...'
+
+    def __str__(self):
+        return f'{self.title_post.title()}'
 
 
 class PostCategory(models.Model):
