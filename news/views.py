@@ -1,9 +1,18 @@
-from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Post, Author
 from .filters import PostFilter
 from .forms import PostForm
+
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'news/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        context['is_not_authors'] = not self.request.user.groups.filter(name='authors').exists()
+        return context
 
 
 class PostView(ListView):
@@ -37,7 +46,7 @@ class PostSearch(ListView):
         return context
 
 
-class PostCreate(CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'news/create.html'
@@ -45,7 +54,7 @@ class PostCreate(CreateView):
 
     def form_valid(self, form):
         post = form.save(commit=False)
-        post.author = Author.objects.get(user_id=1)   #Author.objects.get(user_id=self.request.user.id)
+        post.author = Author.objects.get(user_id=self.request.user.id)
         path = self.request.path
         if path == '/news/create/':
             post.type_post = 'NW'
@@ -55,16 +64,18 @@ class PostCreate(CreateView):
             return super().form_valid(form)
 
 
-class PostUpdate(UpdateView):
+class PostUpdate(PermissionRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'news/create.html'
+    permission_required = 'news.change_post'
 
 
-class PostDelete(DeleteView):
+class PostDelete(PermissionRequiredMixin, DeleteView):
     model = Post
     template_name = 'news/delete.html'
     success_url = reverse_lazy('postlist')
+    permission_required = 'news.delete_post'
 
 
 

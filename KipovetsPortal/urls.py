@@ -14,9 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from news.views import PostView, PostDetail, PostSearch, PostCreate, PostUpdate, PostDelete
+from django.urls import path, include
+from news.views import PostView, PostDetail, PostSearch, PostCreate, PostUpdate, PostDelete, IndexView
 from news.models import Post
+from accounts.views import upgrade_me
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,4 +32,7 @@ urlpatterns = [
     path('articles/<int:pk>/edit/', PostUpdate.as_view(), name='edit'),
     path('news/<int:pk>/delete/', PostDelete.as_view(), name='edit'),
     path('articles/<int:pk>/delete/', PostDelete.as_view(), name='edit'),
+    path('accounts/', include('allauth.urls')),
+    path('', IndexView.as_view(), name='index'),
+    path('accounts/upgrade/', upgrade_me, name='upgrade'),
 ]
