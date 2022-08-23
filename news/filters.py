@@ -1,5 +1,5 @@
 import django_filters
-from .models import Post
+from .models import Post, PostCategory
 
 
 class PostFilter(django_filters.FilterSet):
@@ -10,3 +10,9 @@ class PostFilter(django_filters.FilterSet):
             'text_post': ['icontains'],
             'time_create': ['gte']
         }
+
+
+class PostCategoryFilter(django_filters.FilterSet):
+    class Meta:
+        model = PostCategory
+        fields = ['category']

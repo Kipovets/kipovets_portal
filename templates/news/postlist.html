@@ -20,6 +20,13 @@
     {% else %}
         <h3>На KipivetsNews {{ postlist.count }} новостей</h3>
     {% endif %}
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти новости в категории">
+    </form>
+    <form action="/subscribe/">
+        <input type="submit" value="Подписаться на новинки в категории">
+    </form>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -27,15 +34,17 @@
                 <th scope="col">Содержание</th>
                 <th scope="col">Дата публикации</th>
                 <th scope="col">Автор</th>
+                <th scope="col">Категория</th>
             </tr>
         </thead>
         <tbody>
-            {% for post in postlist %}
+            {% for post in filterset.qs %}
                 <tr class="table-success">
                     <th scope="row"><a href="{{ request.path }}{{ post.id }}">{{ post.title_post|censor }}</a></th>
                     <td class="card-title">{{ post.text_post|censor|truncatechars:20 }}</td>
                     <td class="card-text">{{ post.time_create }}</td>
                     <td class="card-text">{{ post.author.user.username }}</td>
+                    <td class="card-text">{% for category in post.category.all %} <form method="get"> <a href="/news/?category={{ category.id }}">{{category}}</a></form>   {% endfor %} </td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -50,6 +59,13 @@
     {% else %}
         <h3>На KipivetsNews {{ postlist.count }} статей</h3>
     {% endif %}
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти статьи в категории">
+    </form>
+    <form action="/subscribe/">
+        <input type="submit" value="Подписаться на новинки в категории">
+    </form>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -57,15 +73,17 @@
                 <th scope="col">Содержание</th>
                 <th scope="col">Дата публикации</th>
                 <th scope="col">Автор</th>
+                <th scope="col">Категория</th>
             </tr>
         </thead>
         <tbody>
-            {% for post in postlist %}
+            {% for post in filterset.qs %}
                 <tr class="table-info">
                     <th scope="row"><a href="{{ request.path }}{{ post.id }}">{{ post.title_post|censor }}</a></th>
                     <td class="card-title">{{ post.text_post|censor|truncatechars:20 }}</td>
                     <td class="card-text">{{ post.time_create }}</td>
                     <td class="card-text">{{ post.author.user.username }}</td>
+                    <td class="card-text">{% for category in post.category.all %} <form method="get"> <a href="/articles/?category={{ category.id }}">{{category}}</a></form> {% endfor %} </td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
-from .models import Post, Author
-from .filters import PostFilter
-from .forms import PostForm
+from .models import Post, Author, SubscribersCategory, User
+from .filters import PostFilter, PostCategoryFilter
+from .forms import PostForm, SubscribeForm
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -21,6 +22,16 @@ class PostView(ListView):
     template_name = 'news/postlist.html'
     context_object_name = 'postlist'
     paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostCategoryFilter(self.request.GET, queryset)
+        return self.filterset.queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
 
 
 class PostDetail(DetailView):
@@ -76,6 +87,24 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
     template_name = 'news/delete.html'
     success_url = reverse_lazy('postlist')
     permission_required = 'news.delete_post'
+
+
+class SubscriberView(CreateView):
+    model = SubscribersCategory
+    form_class = SubscribeForm
+    template_name = 'news/subscribe.html'
+    success_url = reverse_lazy('postlist')
+
+    def form_valid(self, form):
+        subscribe = form.save(commit=False)
+        subscribe.subscriber = User.objects.get(pk=self.request.user.id)
+        return super(SubscriberView, self).form_valid(form)
+
+
+
+
+
+
 
 
 

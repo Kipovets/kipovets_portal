@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from news.views import PostView, PostDetail, PostSearch, PostCreate, PostUpdate, PostDelete, IndexView
+from news.views import PostView, PostDetail, PostSearch, PostCreate, PostUpdate, PostDelete, IndexView, SubscriberView
 from news.models import Post
 from accounts.views import upgrade_me
 
@@ -35,4 +35,5 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', IndexView.as_view(), name='index'),
     path('accounts/upgrade/', upgrade_me, name='upgrade'),
+    path('subscribe/', SubscriberView.as_view(), name='subscribe'),
 ]
