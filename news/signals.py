@@ -1,8 +1,8 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.core.mail import send_mail, EmailMultiAlternatives
-from .models import Post, SubscribersCategory
+from .models import Post, SubscribersCategory, PostCategory
 from django.dispatch import receiver
-from django.template.loader import render_to_string
+from .tasks import notify_subscribers
 
 
 @receiver(post_save, sender=SubscribersCategory)
@@ -17,20 +17,7 @@ def notify_user_subscribe(sender, instance, created, **kwargs):
     )
 
 
-@receiver(post_save, sender=Post)
-def notify_post_created(sender, instance, created, **kwargs):
-    """Список адресов не собирается, прошу помощи в нахождении проблемы!"""
-    recipient_list = []
-    for category in instance.category.all():
-        for subscriber in category.subscribers.all():
-            email = f'{subscriber.email}'
-            recipient_list.append(email)
-    print(recipient_list)
-    html_content = render_to_string('news/mail_subscribers.html', {'post': instance})
-    msg = EmailMultiAlternatives(
-        subject=f'{instance.title_post}',
-        from_email='manageror@mail.ru',
-        to=recipient_list
-    )
-    msg.attach_alternative(html_content, 'text/html')
-    msg.send()
+@receiver(m2m_changed, sender=Post.category.through, dispatch_uid='notify_post_created_signal')
+def notify_post_created(sender, instance, action, **kwargs):
+    if action == 'post_add':
+        notify_subscribers.apply_async([instance.id], countdown=10)
